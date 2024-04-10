@@ -1,5 +1,4 @@
 <?php
-// Start the session to access session variables
 session_start();
 
 // Database connection configuration
@@ -26,6 +25,9 @@ if (!isset($_SESSION["username"])) {
 // Retrieve the logged-in user's username from the session
 $username = $_SESSION["username"];
 
+// Get the user ID
+$user_id = getUserId($conn, $username);
+
 // Function to get user_id from username
 function getUserId($conn, $username) {
     $sql = "SELECT user_id FROM logintbl WHERE user_name = ?";
@@ -41,39 +43,30 @@ function getUserId($conn, $username) {
     }
 }
 
-// Get the user ID
-$user_id = getUserId($conn, $username);
-
 // Check if the form for updating a note is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["title"]) && isset($_POST["content"]) && isset($_POST["note_id"])) {
     // Get form data
     $title = $_POST["title"];
     $content = $_POST["content"];
     $note_id = $_POST["note_id"];
-    
+
     // Update the note in the database
     $sql = "UPDATE notes_tbl SET title = ?, content = ? WHERE note_id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssii", $title, $content, $note_id, $user_id);
-    
+
     if ($stmt->execute()) {
         // Note updated successfully
-        // Redirect back to the dashboard after updating the note
-        header("Location: dashboardd.php");
-        exit();
+        echo "Note updated successfully";
     } else {
         // Failed to update note
         echo "Error updating note: " . $conn->error;
     }
+} else {
+    // Invalid request
+    echo "Invalid request";
 }
 
 // Close connection
 $conn->close();
 ?>
-
-
-// Fetch notes for the logged-in user in reverse order
-    $notes = [];
-    while ($row = $result->fetch_assoc()) {
-        array_unshift($notes, $row); // Insert each note at the beginning of the array
-    }

@@ -77,46 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="login.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
-            <nav class="navigation">
-                <a href="index.php">HOME</a>
-                <a href="register.php">REGISTER</a>
-                <a href="login.php">LOGIN</a>
-            </nav>
-        </header>
-        <div class="wrapper">
-            <h1>Login</h1>
-            <form action="login.php" method="post" id="loginForm">
-                <div class="input-box">
-                    <input type="text" name="user-name" id="user-name" placeholder="Username">
-                    <i class='bx bxs-user'></i>
-                    <span class="error"><?php echo $username_error; ?></span>
-                </div>
-                <div class="input-box">
-                    <input type="password" name="password" id="password" placeholder="Password">
-                    <i class='bx bxs-lock-alt'></i>
-                    <span class="error"><?php echo $password_error; ?></span>
-                </div>
-                
-                <br>
-                <div class="remember-forgot">
-                    <label><input type="checkbox">Remember me</label>
-                    <a href="forgotpassword.php">Forgot Password?</a>
-                </div>
-                <button type="submit" class="button">LOGIN</button>
-                <div class="register-link">
-                    <p>Don't have an account? <a href="register.php">Register</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
 
-<style>
+    <style>
+        
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
 
 
@@ -211,7 +174,7 @@ body{
     border: none;
     outline: none;
     border: 2px solid;
-    border-radius: 0px;
+    border-radius: 40px;
     font-size: 16px;
     color: black;
     padding: 20px 45px 20px 20px;
@@ -282,3 +245,76 @@ body{
     padding-top: 10px;
 }
 </style>
+    
+<body>
+    <div class="container">
+        <header>
+            <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
+            <nav class="navigation">
+                <a href="index.php">HOME</a>
+                <a href="register.php">REGISTER</a>
+                <a href="login.php">LOGIN</a>
+            </nav>
+        </header>
+        <div class="wrapper">
+            <h1>Login</h1>
+            <form action="login.php" method="post" id="loginForm">
+                <div class="input-box">
+                    <input type="text" name="user-name" id="user-name" placeholder="Username">
+                    <i class='bx bxs-user'></i>
+                    <span class="error"><?php echo $username_error; ?></span>
+                </div>
+                <div class="input-box">
+                   <!-- Add an id to the password input field for easier access -->
+<input type="password" name="password" id="password" placeholder="Password">
+
+                    <i class='bx bxs-lock-alt'></i>
+                    <span class="error"><?php echo $password_error; ?></span>
+                </div>
+                
+                <br>
+                <div class="remember-forgot">
+    <label><input type="checkbox" id="remember-me">Remember me</label>
+    <a href="forgotpassword.php">Forgot Password?</a>
+</div>
+
+                </div>
+                <button type="submit" class="button" style = " width: 100% ;height: 45px; background: pink; border: none; outline: none;border-radius: 40px; cursor: pointer;font-size: 16px;color: black;">LOGIN</button>
+                <div class="register-link" style =" font-size: 14.5px; text-align: center; margin-top: 20px;">
+                    <p>Don't have an account? <a href="register.php">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // Check if the remember me checkbox is checked
+    var rememberMe = localStorage.getItem("rememberMe") === "true";
+    var username = localStorage.getItem("username");
+
+    if (rememberMe && username) {
+        // If remember me is checked and username is stored, autofill the username and password fields
+        document.getElementById("user-name").value = username;
+        document.getElementById("password").value = localStorage.getItem("password");
+    }
+
+    // Attach an event listener to the remember me checkbox
+    document.getElementById("remember-me").addEventListener("change", function() {
+        // If checked, store the username and password in local storage
+        if (this.checked) {
+            localStorage.setItem("rememberMe", "true");
+            localStorage.setItem("username", document.getElementById("user-name").value);
+            localStorage.setItem("password", document.getElementById("password").value);
+        } else {
+            // If unchecked, remove the stored username and password from local storage
+            localStorage.removeItem("rememberMe");
+            localStorage.removeItem("username");
+            localStorage.removeItem("password");
+        }
+    });
+});
+
+</script>

@@ -74,25 +74,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $confirmPassword_error = "Passwords do not match";
     }
 
-    // Check if there are no errors
-    if (empty($firstname_error) && empty($lastname_error) && empty($username_error) && empty($email_error) && empty($password_error) && empty($confirmPassword_error)) {
-        // Proceed with database insertion
-        // Hash the password
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+}
+    // Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Your existing code for processing form data
+
+    // Check if a file is uploaded
+    if(isset($_FILES['profile-picture']) && !empty($_FILES['profile-picture']['name'])) {
+        // File upload configuration
+        $targetDir = "uploads/"; // Directory where uploaded files will be stored
+        $fileName = basename($_FILES["profile-picture"]["name"]); // Get the name of the uploaded file
+        $targetFilePath = $targetDir . $fileName; // Path to store the uploaded file
         
-        // Use prepared statement to prevent SQL injection
-        $stmt = $conn->prepare("INSERT INTO logintbl (f_name, l_name, user_name, l_email, pass_word) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $firstname, $lastname, $username, $email, $hashed_password);
+        // Check file type
+        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
         
-        if ($stmt->execute()) {
-            // Registration successful
-            $success_message = "You are successfully registered!";
+        if(in_array($fileType, $allowedTypes)) {
+            // Upload file to the server
+            if(move_uploaded_file($_FILES["profile-picture"]["tmp_name"], $targetFilePath)) {
+                // File uploaded successfully, store file path in database
+                // Modify your database insert query to include the profile picture field
+                $stmt = $conn->prepare("INSERT INTO logintbl (f_name, l_name, user_name, l_email, pass_word, profile_picture) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssss", $firstname, $lastname, $username, $email, $hashed_password, $targetFilePath);
+                
+                // Execute the query
+                if ($stmt->execute()) {
+                    // Registration successful
+                    $success_message = "You are successfully registered!";
+                } else {
+                    echo "Error: " . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                // Failed to upload file
+                echo "Sorry, there was an error uploading your file.";
+            }
         } else {
-            echo "Error: " . $stmt->error;
+            // Invalid file type
+            echo "Sorry, only JPG, JPEG, PNG, and GIF files are allowed.";
         }
-        $stmt->close();
+    }
+}// Check if a file is uploaded
+if(isset($_FILES['profile-picture']) && !empty($_FILES['profile-picture']['name'])) {
+    // File upload configuration
+    $targetDir = "uploads/"; // Directory where uploaded files will be stored
+    $fileName = basename($_FILES["profile-picture"]["name"]); // Get the name of the uploaded file
+    $targetFilePath = $targetDir . $fileName; // Path to store the uploaded file
+    
+    // Check file type
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
+    
+    if(in_array($fileType, $allowedTypes)) {
+        // Upload file to the server
+        if(move_uploaded_file($_FILES["profile-picture"]["tmp_name"], $targetFilePath)) {
+            // File uploaded successfully, store file path in database
+            // Hash the password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            // Prepare SQL statement for insertion
+            $stmt = $conn->prepare("INSERT INTO logintbl (f_name, l_name, user_name, l_email, pass_word, profile_picture) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssss", $firstname, $lastname, $username, $email, $hashed_password, $targetFilePath);
+            
+            // Execute the query
+            if ($stmt->execute()) {
+                // Registration successful
+                $success_message = "You are successfully registered!";
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            // Failed to upload file
+            echo "Sorry, there was an error uploading your file.";
+        }
+    } else {
+        // Invalid file type
+        echo "Sorry, only JPG, JPEG, PNG, and GIF files are allowed.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -145,7 +209,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="wrapper">
         <h1>Register</h1>
     </div>
-    <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+    <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+
     <div>
         <label for="first-name">First Name:</label>
         <input type="text" id="first-name" name="first-name" value="<?php echo isset($_POST['first-name']) ? htmlspecialchars($_POST['first-name']) : ''; ?>">
@@ -181,81 +246,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="password" id="con-password" name="con-password" value="<?php echo isset($_POST['con-password']) ? htmlspecialchars($_POST['con-password']) : ''; ?>">
         <span class="error"><?php echo $confirmPassword_error; ?></span>
     </div>  
-    
-    <button type="submit" id="sign-in-button" style="background-color:pink; color: black; margin-top: 5px; margin-bottom: 10px; padding: 10px 50px; border-radius: 40px; font-size: 16px; align-items: center; display: block; margin: auto; border: none; outline: none; width: 100%; ">REGISTER</button>
+        
+    <div>
+        <label for="profile-picture">Profile Picture:</label>
+        <input type="file" id="profile-picture" name="profile-picture">
+    </div>
+    <button type="submit" id="sign-in-button" style="background-color:pink; color: black; margin-top: 40px; margin-bottom: 50px; padding: 10px 50px; border-radius: 40px; font-size: 16px; align-items: center; display: block; margin: auto; border: none; outline: none; width: 100%; ">REGISTER</button>
 </form>
 
 </body>
 </html>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONLINE NOTES APPLICATION</title>
-    <link rel="stylesheet" href="register.css"> 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
-</head>
-<body>
-    <header>
-        <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
-        <nav class="navigation">
-            <a href="index.php">HOME</a>
-            <a href="register.php">REGISTER</a>
-            <a href="login.php">LOGIN</a>
-        </nav>
-    </header>
-
-    <div class="wrapper">
-        <h1>Register</h1>
-    </div>
-    <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-    <div>
-        <label for="first-name">First Name:</label>
-        <input type="text" id="first-name" name="first-name" value="<?php echo isset($_POST['first-name']) ? htmlspecialchars($_POST['first-name']) : ''; ?>">
-        <span class="error"><?php echo $firstname_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="last-name">Last Name:</label>
-        <input type="text" id="last-name" name="last-name" value="<?php echo isset($_POST['last-name']) ? htmlspecialchars($_POST['last-name']) : ''; ?>">
-        <span class="error"><?php echo $lastname_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="user-name">Username:</label>
-        <input type="text" id="user-name" name="user-name" value="<?php echo isset($_POST['user-name']) ? htmlspecialchars($_POST['user-name']) : ''; ?>">
-        <span class="error"><?php echo $username_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-        <span class="error"><?php echo $email_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" value="<?php echo isset($_POST['password']) ? htmlspecialchars($_POST['password']) : ''; ?>">
-        <span class="error"><?php echo $password_error; ?></span>
-    </div>
-    
-    <div>
-        <label for="con-password">Confirm Password:</label>
-        <input type="password" id="con-password" name="con-password" value="<?php echo isset($_POST['con-password']) ? htmlspecialchars($_POST['con-password']) : ''; ?>">
-        <span class="error"><?php echo $confirmPassword_error; ?></span>
-    </div>  
-    
-    <button type="submit" id="sign-in-button" style="background-color:pink; color: black; margin-top: 5px; margin-bottom: 10px; padding: 10px 50px; border-radius: 40px; font-size: 16px; align-items: center; display: block; margin: auto; border: none; outline: none; width: 100%; ">REGISTER</button>
-</form>
-
-</body>
-</html>
-
-
 
 
 <style>
@@ -343,7 +343,7 @@ header{
 }
 #notelt-title {
     line-height: 50px;
-    margin-bottom: 10px;
+    margin-top: 5px;
 }
 
 #notelt-title span.do {
@@ -378,6 +378,7 @@ header{
 
 .wrapper h1 {
     font-size: 36px;
+    padding-top: 0;
 }
 
 
@@ -398,12 +399,14 @@ header{
     height: auto;
     position: absolute;
     top: 60%;
+    padding: 10px;
     left: 50%;
     transform: translate(-50%, -50%); /* Center horizontally and vertically */
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     color: black;
+
 }
 
 #registration-form div {
@@ -420,14 +423,16 @@ header{
     width: calc(100% - 10px); /* Adjust input width to account for padding */
     padding: 10px 30px 10px 10px;
     text-align: left; /* Align input text to the left */
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     border: 2px solid;
     border-radius: 0px;
     color: black;
+    border-radius: 40px;
 }
 
 .error{
     color: red;
-    padding-top: 5px;
+    padding-top: 0px;
 }
+
 </style>

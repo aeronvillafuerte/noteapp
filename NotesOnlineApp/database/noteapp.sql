@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2024 at 05:17 PM
+-- Generation Time: Apr 10, 2024 at 01:09 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -20,6 +20,31 @@ SET time_zone = "+00:00";
 --
 -- Database: `noteapp`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `archive2_tbl`
+--
+
+CREATE TABLE `archive2_tbl` (
+  `archive_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `note_id` int(11) DEFAULT NULL,
+  `archived_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `archive_tbl`
+--
+
+CREATE TABLE `archive_tbl` (
+  `archive_id` int(11) NOT NULL,
+  `user_id` int(10) NOT NULL,
+  `note_id` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -74,7 +99,8 @@ INSERT INTO `logintbl` (`user_id`, `f_name`, `l_name`, `user_name`, `l_email`, `
 (30, 'buang', 'ka', 'angbu', 'quin@gmail.com', '$2y$10$/J.MzmnPPouJFfH/IUg6v.nq476rQnq0WBt6Vtoqly95nygr2mEsC', ''),
 (31, 'bbb', 'bbb', 'bbb', 'bbb@gmail.com', '$2y$10$sppNeBbw2XfgEvrsLye.me3MIibk/g6Wy84g3TFTnKIPejvv/ygeO', ''),
 (32, 'aaa', 'aaa', 'aaa', 'ddd@gmail.com', '$2y$10$bY3nIypV6Eqs2V8LsqZU/.LVnTSgnsJwqXeWW2i.NChSVFEH71QMC', ''),
-(33, 'kkk', 'kkk', 'kkk', 'aeronvillafuerte20@gmail.com', '$2y$10$4cfvjp4sQRsVGdeS7RMZ9.vzgy2gWIYGmT8RVeQq7b8EkTRZY9qTq', '');
+(33, 'kkk', 'kkk', 'kkk', 'aeronvillafuerte20@gmail.com', '$2y$10$4cfvjp4sQRsVGdeS7RMZ9.vzgy2gWIYGmT8RVeQq7b8EkTRZY9qTq', ''),
+(34, 'TAEHYUNG', 'KIM', 'V', 'shem@gmail.com', '$2y$10$C2AQ374d/qtOMbIPRWoJRu2lTxPyNvI.kSk65s2bDBlBoUgRM.J7O', 0x75706c6f6164732f494d475f32303231303831355f3038303435382e6a7067);
 
 -- --------------------------------------------------------
 
@@ -125,11 +151,27 @@ INSERT INTO `notes_tbl` (`note_id`, `user_id`, `title`, `content`, `created_at`)
 (28, 32, 'etil', '', '2024-04-02 22:38:21'),
 (29, 32, 'ssss', 'sss', '2024-04-02 22:57:12'),
 (30, 26, 'buang', 'ko', '2024-04-02 23:08:34'),
-(31, 26, 'MANGUNDANG', 'ARAT NA', '2024-04-02 23:09:50');
+(31, 26, 'MANGUNDANG', 'ARAT NA', '2024-04-02 23:09:50'),
+(32, 34, 'BANGTAN SONYEONDAN', '7', '2024-04-10 18:49:43'),
+(33, 34, 'KIM TAEHYUNG', 'TURONG LABLAB', '2024-04-10 18:50:20');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `archive2_tbl`
+--
+ALTER TABLE `archive2_tbl`
+  ADD PRIMARY KEY (`archive_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `note_id` (`note_id`);
+
+--
+-- Indexes for table `archive_tbl`
+--
+ALTER TABLE `archive_tbl`
+  ADD PRIMARY KEY (`archive_id`);
 
 --
 -- Indexes for table `logintbl`
@@ -149,20 +191,39 @@ ALTER TABLE `notes_tbl`
 --
 
 --
+-- AUTO_INCREMENT for table `archive2_tbl`
+--
+ALTER TABLE `archive2_tbl`
+  MODIFY `archive_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `archive_tbl`
+--
+ALTER TABLE `archive_tbl`
+  MODIFY `archive_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `logintbl`
 --
 ALTER TABLE `logintbl`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `notes_tbl`
 --
 ALTER TABLE `notes_tbl`
-  MODIFY `note_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `note_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `archive2_tbl`
+--
+ALTER TABLE `archive2_tbl`
+  ADD CONSTRAINT `archive2_tbl_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `logintbl` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `archive2_tbl_ibfk_2` FOREIGN KEY (`note_id`) REFERENCES `notes_tbl` (`note_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `notes_tbl`

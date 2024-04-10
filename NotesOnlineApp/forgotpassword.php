@@ -1,3 +1,53 @@
+<?php
+
+session_start();
+
+// Database connection configuration
+$servername = "localhost";
+$db_username = "root";
+$db_password = "";
+$dbname = "noteapp";
+
+// Create connection
+$conn = new mysqli($servername, $db_username, $db_password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Check if the form has been submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get the username, new password, and confirm password entered by the user
+    $username = $_POST['username'];
+    $newPassword = $_POST['pass'];
+    $confirmPassword = $_POST['conpass'];
+
+    // Validate the new password and confirm password
+    if ($newPassword !== $confirmPassword) {
+        $error = "Passwords do not match.";
+    } elseif (strlen($newPassword) < 8 || !preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
+        $error = "Password must be at least 8 characters long and contain a special character.";
+    } else {
+        // Update the password in the database for the user
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT); // Hash the new password
+        $sql = "UPDATE logintbl SET pass_word = ? WHERE user_name = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $hashedPassword, $username);
+        if ($stmt->execute()) {
+            // Password updated successfully
+            // Redirect the user to a confirmation page or login page
+            header("Location: login.php");
+            exit();
+        } else {
+            // Error updating password
+            $error = "Error updating password.";
+        }
+    }
+}
+
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,19 +73,22 @@
             <br>
             <br>
             <h1>Forgot Password?</h1>
-            <form action="#" method="post" id="loginForm" onsubmit="return validateForm()">
+            <?php if (isset($error)) { ?>
+                <p style="color: red;"><?php echo $error; ?></p>
+            <?php } ?>
+            <form action="#" method="post" id="loginForm">
                 <div class="input-box">
-                    <input type="text" name="email" id="email" placeholder="Email">
-                    <i class='bx bxs-envelope'></i>
+                    <input type="text" name="username" id="username" placeholder="Username">
+                    <i class='bx bxs-user'></i>
                 </div>
 
                 <div class="input-box">
-                    <input type="text" name="pass" id="pass" placeholder="Password">
+                    <input type="password" name="pass" id="pass" placeholder="New Password">
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
                 <div class="input-box">
-                    <input type="text" name="conpass" id="conpass" placeholder="ConfirmPassword">
+                    <input type="password" name="conpass" id="conpass" placeholder="Confirm New Password">
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
@@ -44,9 +97,9 @@
         
         </div>
     </div>
-
 </body>
 </html>
+
 
 <style>
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');

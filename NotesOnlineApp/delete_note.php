@@ -16,7 +16,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if the user is logged in
+// Check if the user is logged in, if not redirect to login page
 if (!isset($_SESSION["username"])) {
     // Handle unauthenticated access
     echo "Unauthorized access";
@@ -44,36 +44,22 @@ function getUserId($conn, $username) {
 // Get the user ID
 $user_id = getUserId($conn, $username);
 
-// Check if the form for updating a note is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["title"]) && isset($_POST["content"]) && isset($_POST["note_id"])) {
-    // Get form data
-    $title = $_POST["title"];
-    $content = $_POST["content"];
+// Check if the form is submitted and note_id is set
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["note_id"])) {
     $note_id = $_POST["note_id"];
-    
-    // Update the note in the database
-    $sql = "UPDATE notes_tbl SET title = ?, content = ? WHERE note_id = ? AND user_id = ?";
+
+    // Delete the note from the database
+    $sql = "DELETE FROM notes_tbl WHERE note_id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssii", $title, $content, $note_id, $user_id);
-    
+    $stmt->bind_param("ii", $note_id, $user_id);
+
     if ($stmt->execute()) {
-        // Note updated successfully
-        // Redirect back to the dashboard after updating the note
-        header("Location: dashboardd.php");
-        exit();
+        echo "Note deleted successfully";
     } else {
-        // Failed to update note
-        echo "Error updating note: " . $conn->error;
+        echo "Error deleting note: " . $conn->error;
     }
 }
 
 // Close connection
 $conn->close();
 ?>
-
-
-// Fetch notes for the logged-in user in reverse order
-    $notes = [];
-    while ($row = $result->fetch_assoc()) {
-        array_unshift($notes, $row); // Insert each note at the beginning of the array
-    }

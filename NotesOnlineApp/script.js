@@ -19,7 +19,6 @@ addBox.addEventListener("click", () => {
     popupBox.classList.add("show");
 });
 
-
 closeIcon.addEventListener("click", () => {
     titleTag.value = "";
     descTag.value = "";
@@ -62,12 +61,11 @@ function showNotes() {
         });
 }
 
-
 // Call showNotes to display existing notes
 showNotes();
 
 function showMenu(elem) {
-    elem.parentElement.classList.add("show");
+    elem.classList.toggle("show");
     document.addEventListener("click", e => {
         // removing show class from the settings menu on document click
         if (e.target.tagName != "I" || e.target != elem) {
@@ -76,62 +74,98 @@ function showMenu(elem) {
     });
 }
 
+// Function to show the edit popup box with note details
+function showEditPopup(noteId, title, content) {
+    // Set values for the edit popup fields
+    document.getElementById('edit-note-id').value = noteId;
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-content').value = content;
+
+    // Show the edit popup box
+    document.querySelector('.edit-popup-box').classList.add('show');
+}
+
+    // Function to close the edit popup box
+    function closeEditPopup() {
+
+    // Hide the edit popup box
+    document.querySelector('.edit-popup-box').classList.remove('show');
+}
+
+// Function to delete a note
 function deleteNote(noteId) {
-    let confirmDel = confirm("Are you sure you want to delete this note?");
-    if (!confirmDel) return;
-
-    notes.splice(noteId, 1); // removing selected note from array/tasks
-    localStorage.setItem("notes", JSON.stringify(notes)); // saving notes to local storage
-    showNotes();
+    // Send a request to delete_note.php to delete the note from the database
+    fetch('delete_note.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'note_id=' + noteId,
+    })
+    .then(response => response.text())
+    .then(data => {
+        // Display the response message
+        alert(data);
+        // Reload the dashboard to reflect changes
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
-function updateNote(noteId, title, desc) {
-    isUpdate = true;
-    updateId = noteId;
-    addBox.click();
-    titleTag.value = title;
-    descTag.value = desc;
-    addBtn.innerText = "Update Note";
-    popupTitle.innerText = "Update a Note";
+
+// Function to show the edit popup box with note details
+function showEditPopup(noteId, title, content) {
+    // Set values for the edit popup fields
+    document.getElementById('edit-note-id').value = noteId;
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-content').value = content;
+
+    // Show the edit popup box
+    document.querySelector('.edit-popup-box').classList.add('show');
 }
 
-// Add event listener to add note
-addBtn.addEventListener("click", e => {
-    e.preventDefault();
-    let noteTitle = titleTag.value;
-    let noteDesc = descTag.value;
+document.addEventListener("DOMContentLoaded", function() {
+    // Function to handle form submission for updating a note
+    document.getElementById("update-submit-btn").addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-    if (noteTitle || noteDesc) {
-        // Create a FormData object to send the data to the server
-        let formData = new FormData();
-        formData.append('title', noteTitle);
-        formData.append('content', noteDesc);
+        // Get the updated title and content from the form
+        var updatedTitle = document.getElementById("edit-title").value;
+        var updatedContent = document.getElementById("edit-content").value;
+        
+        // Get the note ID
+        var noteId = document.getElementById("edit-note-id").value;
 
-        // Send the data to the server using fetch API
-        fetch('dashboardd.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log(data); // Log the response from the server
-                // Update the UI or perform any necessary actions based on the server response
-                // For example, you can reload the notes from the server if needed
-                // Or show a success message to the user
-                showNotes(); // Reload notes after adding a new one
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-
-        // Clear the form fields
-        titleTag.value = '';
-        descTag.value = '';
-
-        // Close the popup box
-        popupBox.classList.remove("show");
-    }
+        // Send the updated data to the server via AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_note.php", true); // Change "update_note.php" to the appropriate server endpoint
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // Update the note on the page if update was successful
+                    var noteElement = document.getElementById("note-" + noteId);
+                    noteElement.querySelector(".note p").textContent = updatedTitle;
+                    noteElement.querySelector(".note span").textContent = updatedContent;
+                    
+                    // Close the edit popup
+                    closeEditPopup();
+                } else {
+                    // Handle error
+                    console.error("Error updating note: " + xhr.responseText);
+                }
+            }
+        };
+        // Send the updated title, content, and note ID to the server
+        var formData = "title=" + encodeURIComponent(updatedTitle) + "&content=" + encodeURIComponent(updatedContent) + "&note_id=" + noteId;
+        xhr.send(formData);
+    });
 });
+
+
+
 
 // Hide notes when scrolling up
 window.addEventListener('scroll', function() {
@@ -150,7 +184,6 @@ window.addEventListener('scroll', function() {
         notesWrapper.style.paddingTop = '50px'; // Restore original padding when scrolled to top
     }
 });
-
 
 
 
