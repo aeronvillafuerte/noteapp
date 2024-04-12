@@ -44,6 +44,7 @@ function getUserId($conn, $username) {
 }
 
 // Check if the archive action is performed
+// After archiving the note, move it to archive2_tbl
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["note_id"])) {
     $note_id = $_POST["note_id"];
 
@@ -83,14 +84,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["unarchive_note_id"])) 
         echo "Error unarchiving note: " . $conn->error;
     }
 }
-// Retrieve archived notes for the logged-in user from archive2_tbl along with their titles
-$sql_archived_notes = "SELECT n.note_id, n.title, n.content, n.created_at FROM notes_tbl n INNER JOIN archive2_tbl a ON n.note_id = a.note_id WHERE a.user_id = ?";
+
+// Retrieve archived notes for the logged-in user from archive2_tbl along with their titles and creation dates
+$sql_archived_notes = "SELECT n.note_id, n.title, n.content, n.created_at 
+                       FROM notes_tbl n 
+                       INNER JOIN archive2_tbl a ON n.note_id = a.note_id 
+                       WHERE a.user_id = ?";
 
 $stmt_archived_notes = $conn->prepare($sql_archived_notes);
 $stmt_archived_notes->bind_param("i", $user_id);
 $stmt_archived_notes->execute();
 $result_archived_notes = $stmt_archived_notes->get_result();
 
+// Fetch user's profile picture path
+$sql_profile_picture = "SELECT profile_picture FROM logintbl WHERE user_name = ?";
+$stmt_profile_picture = $conn->prepare($sql_profile_picture);
+$stmt_profile_picture->bind_param("s", $username);
+$stmt_profile_picture->execute();
+$result_profile_picture = $stmt_profile_picture->get_result();
+$row_profile_picture = $result_profile_picture->fetch_assoc();
+$profile_picture = $row_profile_picture["profile_picture"];
 
 // Close connection
 $conn->close();
@@ -115,13 +128,22 @@ $conn->close();
         <a href="dashboardd.php"><i class="fa fa-sticky-note-o"></i> All Notes</a>
         <a href="favorites.php"><i class="fa fa-star"></i> Favorites</a>  
         <a href="archive.php"><i class="fa fa-archive"></i> Archives</a>
-        <a href="index.php" onclick="openPopup()"><i class="fa fa-sign-out"></i> Logout</a>
-        <p style="position: absolute; bottom: 20px; left: 50px; margin: 0; font-size: 20px;">Hi! Welcome, <br>
+        <a href="#" id="logoutBtn"><i class="fa fa-sign-out"></i> Logout</a>
+        <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+        <p style="position: absolute; bottom: 20px; left: 50px; margin: 0; font-size: 20px;">Hi! Welcome,  <br> <?php echo $username; ?>
     </div> 
 
     <div class="archive">
         <h1>Archives</h1>
     </div>
+
+    <div class="search-container">
+            <form>
+                <input type="text" name="" placeholder="Search...">
+                <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+            </form>
+    </div>
+    
 
     <div class="wrapper">
         <?php
@@ -143,7 +165,7 @@ $conn->close();
                         <!-- Unarchive button -->
                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                             <input type="hidden" name="unarchive_note_id" value="<?php echo $row["note_id"]; ?>">
-                            <button type="submit">Unarchive</button>
+                            <button id="unarchive" style: bo>Unarchive</button>
                         </form>
                     </div>
                 </div>
@@ -165,7 +187,6 @@ $conn->close();
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
 
     * {
-        padding: 0px;
         margin: 0px;
         box-sizing: border-box;
         list-style: none;
@@ -227,6 +248,56 @@ $conn->close();
         background-color: white;
     }
 
+    .search-container {
+    position: fixed; /* Change position to fixed */
+    top: 0;
+    left: 900px; /* Adjust right positioning as needed */
+    z-index: 1; /* Ensure it's above other elements */
+    margin-top: 30px; /* Adjust margin-top as needed */
+}
+
+.search-container form {
+    background: pink;
+    border-radius: 25px;
+    position: relative;
+    display: inline-block; /* Ensures the form width fits its contents */
+}
+
+.search-container input {
+    height: 100%;
+    display: block;
+    border-radius: 25px;
+    padding: 8px 40px 8px 20px;
+    border: none;
+    box-shadow: 0 3px 3px 3px black;
+}
+
+.search-container input:focus {
+    outline: none;
+}
+
+.search-container button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    height: 100%;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 18px;
+}
+
+.search-container button i {
+    color: rgb(93, 94, 95);
+}
+
+.search-container button:hover i {
+    color: rgb(162, 163, 163);
+}
+
+
     .archive {
         position: fixed;
         top: 0;
@@ -258,7 +329,7 @@ $conn->close();
         background: #fff;
         border-radius: 5px;
         padding: 15px 20px 20px;
-        margin-left: 250px;
+        
         margin-top: 20px;
         border: 2px solid pink;
     }
@@ -287,11 +358,17 @@ $conn->close();
         text-align: left;
     }
 
+    .note {
+    position: relative; /* Add this line to make .date positioning relative to this container */
+    }
+
     .date {
         font-size: 16px;
         color: black;
         position: absolute;
-        bottom: 5px;
-        left: 10px;
+        bottom: 290px; /* Adjust as needed */
+        left: 260px; /* Adjust as needed */
     }
+
 </style>
+

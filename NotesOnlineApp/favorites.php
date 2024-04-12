@@ -1,3 +1,71 @@
+<?php
+// Start the session to access session variables
+session_start();
+
+// Database connection configuration
+$servername = "localhost";
+$db_username = "root";
+$db_password = "";
+$dbname = "noteapp";
+
+// Create connection
+$conn = new mysqli($servername, $db_username, $db_password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Function to get user_id from username
+function getUserId($conn, $username) {
+    $sql = "SELECT user_id FROM logintbl WHERE user_name = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return $row["user_id"];
+    } else {
+        return null; // User not found
+    }
+}
+
+// Check if the user is logged in, if not redirect to login page
+if (!isset($_SESSION["username"])) {
+    // Handle unauthenticated access
+    echo "Unauthorized access";
+    exit;
+}
+
+// Retrieve the logged-in user's username from the session
+$username = $_SESSION["username"];
+
+// Get the user ID
+$user_id = getUserId($conn, $username);
+
+// Fetch favorite notes for the logged-in user
+$sql = "SELECT notes_tbl.note_id, notes_tbl.title, notes_tbl.content, notes_tbl.created_at
+        FROM notes_tbl
+        INNER JOIN favorites_tbl ON notes_tbl.note_id = favorites_tbl.note_id
+        WHERE favorites_tbl.user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch user's profile picture path
+$sql_profile_picture = "SELECT profile_picture FROM logintbl WHERE user_name = ?";
+$stmt_profile_picture = $conn->prepare($sql_profile_picture);
+$stmt_profile_picture->bind_param("s", $username);
+$stmt_profile_picture->execute();
+$result_profile_picture = $stmt_profile_picture->get_result();
+$row_profile_picture = $result_profile_picture->fetch_assoc();
+$profile_picture = $row_profile_picture["profile_picture"];
+    
+// Close connection
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,8 +84,8 @@
             <a href="favorites.php"><i class="fa fa-star"></i> Favorites</a>  
             <a href="archive.php"><i class="fa fa-archive"></i> Archives</a>
             <a href="index.php" onclick="openPopup()"><i class="fa fa-sign-out"></i> Logout</a>
-
-            <p style="position: absolute; bottom: 20px; left: 50px; margin: 0; font-size: 20px;">Hi! Welcome, <br>
+            <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+        <p style="position: absolute; bottom: 20px; left: 50px; margin: 0; font-size: 20px;">Hi! Welcome,  <br> <?php echo $username; ?>
         </div> 
 
         <div class="favorites">
@@ -33,6 +101,57 @@
             </form>
         </div>
     </div>
+    <div class="favorites">
+    <h1>Favorites</h1>
+    <div class="wrapper">
+    <?php if ($result->num_rows > 0) { ?>
+                    <div class="favorites-content">
+                        <?php while ($row = $result->fetch_assoc()) { ?>
+                            <div class="note-box" data-note-id="<?php echo $row['note_id']; ?>">
+                                <div class="note">
+                                    <p><?php echo $row['title']; ?></p>
+                                    <div class="underline"></div>
+                                    <p><?php echo $row['content']; ?></p>
+                                    <span class="date"><?php echo $row['created_at']; ?></span>
+                                    <i class="fa fa-star clickable-star fa-star yellow starred" style="margin-left: 30px; font-size: 20px;" onclick="removeFromFavorites(this, <?php echo $row['note_id']; ?>)"></i>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="no-favorites-message">
+                        <p>No favorite notes found.</p>
+                    </div>
+                <?php } ?>
+  
+</div>
+
+    </div>
+</body>
+
+<script>
+   function toggleStar(element, noteId) {
+    if (!element.classList.contains("starred")) {
+        // Star is not filled, so fill it
+        element.classList.add("starred");
+        element.classList.remove("yellow"); // Remove the yellow color
+        // Change the color to black by toggling classes
+        element.classList.remove("fa-star");
+        element.classList.add("fa-star-o");
+        addToFavorites(noteId); // Call function to add note to favorites if it's not already there
+    } else {
+        // Star is filled, so unfill it
+        element.classList.remove("starred");
+        element.classList.add("yellow"); // Add the yellow color back
+        // Change the color to yellow by toggling classes
+        element.classList.remove("fa-star-o");
+        element.classList.add("fa-star");
+        removeFromFavorites(noteId); // Call function to remove note from favorites if it's already there
+    }
+}
+
+
+</script>
 
 
 
@@ -89,6 +208,62 @@
     margin-top: 25px;
 }
 
+.wrapper {
+        margin-top: 100px; /* Adjust top margin as needed */
+        margin-left: 250px; /* Increase the margin to create space for the sidebar/menu */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .clickable-star {
+        cursor: pointer; /* Add pointer cursor to indicate clickability */
+    }
+
+
+    /* Define the style for the outlined star icon */
+.fa-star-o {
+    color: black; /* Set the color to black */
+}
+
+/* Define the style for the filled star icon */
+.fa-star {
+    color: yellow; /* Set the color to yellow */
+}
+
+    .note-box {
+        height: 250px;
+        width: 265px;
+        background: #fff;
+        border-radius: 5px;
+        padding: 15px 20px 20px;
+        
+        margin-top: 20px;
+        border: 2px solid pink;
+    }
+
+    .note p {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: left;
+        margin: 0;
+    }
+
+    .underline {
+        border: none;
+        border-top: 1px solid pink;
+        width: 100%;
+        margin-top: 1px;
+    }
+
+
+    .note {
+    position: relative; /* Add this line to make .date positioning relative to this container */
+    }
+
+
 
 .menu a{
     font-size: 18px;
@@ -98,6 +273,16 @@
     color: black;
     display: block;     
 }
+
+
+.menu img {
+        position: absolute;
+        top: 80%;
+        right: 85px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
 
 
 .menu a i {
@@ -134,7 +319,6 @@
     height: 100%;
     display: block;
     border-radius: 25px;
-    font-size: 20px;
     padding: 8px 40px 8px 20px;
     border: none;
     box-shadow: 0 3px 3px 3px black;

@@ -164,9 +164,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-
-
-
 // Hide notes when scrolling up
 window.addEventListener('scroll', function() {
     var scrollPosition = window.scrollY;
@@ -184,6 +181,55 @@ window.addEventListener('scroll', function() {
         notesWrapper.style.paddingTop = '50px'; // Restore original padding when scrolled to top
     }
 });
+
+function toggleStar(element, noteId) {
+    if (!element.classList.contains("starred")) {
+        // Star is not filled, so fill it
+        element.classList.add("starred");
+        element.classList.remove("fa-star-o");
+        element.classList.add("fa-star");
+        // Send AJAX request to add note to favorites
+        addToFavorites(noteId);
+    } else {
+        // Star is filled, so unfill it
+        element.classList.remove("starred");
+        element.classList.remove("fa-star");
+        element.classList.add("fa-star-o");
+        // Send AJAX request to remove note from favorites
+        removeFromFavorites(noteId);
+    }
+}
+
+function addToFavorites(noteId) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Handle response if needed
+        }
+    };
+    xhttp.open("POST", "favorites.php", true); // Update the URL to favorites.php
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("note_id=" + noteId); // Pass note_id as a parameter
+}
+
+function removeFromFavorites(noteId) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Handle response if needed
+        }
+    };
+    xhttp.open("POST", "favorites.php", true); // Update the URL to favorites.php
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("note_id=" + noteId); // Pass note_id as a parameter
+}
+
+
+
+
+
+
+
 
 
 

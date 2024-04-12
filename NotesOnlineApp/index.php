@@ -21,7 +21,7 @@
             </nav>
         </header>
 
-        <img id="images" src="images/logss.png" alt="Notelt! logo" >
+        <img id="images" src="images/displayimage.png" alt="Notelt! logo" >
         <div id="donote-container">
             <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
           
@@ -39,77 +39,6 @@
 <style>
 
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
-
-* {
-    font-family: "Poppins", sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.container {
-    max-width: 1200px; /* Adjust container width as needed */
-    margin: 0 auto; /* Center the container horizontally */
-    padding: 20px; /* Add padding to the container */
-}
-
-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 15px 100px;
-    background: pink;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
-}
-
-.logo{
-    font-size: 2em;
-    color: black;
-    user-select: none;
-}
-
-#notelt-title span.do {
-  color: rgb(233, 109, 130); /* Change color of "Do" to pink */
-}
-
-#notelt-title span.note {
-  color: black; /* Change color of "Note" to pink */
-}
-
-
-.navigation a{
-    position: relative;
-    font-size: 1.2em;
-    color: black;
-    text-decoration: none;
-    font-weight: 400;
-    margin-left: 10px;
-}
-
-.navigation a::after{
-    content: '';
-    position: absolute;
-
-}
-
-.navigation login{
-    width: 130px;
-    height: 50px;
-    background: transparent;
-    border: 2px solid white;
-    outline: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    color: white;
-    font-weight: 500;
-    margin-left: 40px;
-    transition: .5s;
-}
 
 
 #donote-container {
@@ -156,8 +85,7 @@ header{
   }
 
 #images{
-    width: 600px;
-    height: auto;
-    margin-right: 20px;
+    
+    margin-left: 100px;
     margin-top: 200px;
   }

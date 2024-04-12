@@ -1,4 +1,8 @@
 <?php
+    include 'navbar.php';
+?>
+
+<?php
 // Initialize error variables
 $servername = "localhost"; 
 $username = "root"; 
@@ -158,7 +162,6 @@ if(isset($_FILES['profile-picture']) && !empty($_FILES['profile-picture']['name'
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -166,7 +169,7 @@ if(isset($_FILES['profile-picture']) && !empty($_FILES['profile-picture']['name'
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ONLINE NOTES APPLICATION</title>
-    <link rel="stylesheet" href="register.css"> 
+    <link rel="stylesheet" href="style.css"> 
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
     <script>
         // Function to display success message in the center of the screen
@@ -196,176 +199,61 @@ if(isset($_FILES['profile-picture']) && !empty($_FILES['profile-picture']['name'
         ?>
     </script>
 </head>
-<body>
-    <header>
-        <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
-        <nav class="navigation">
-            <a href="index.php">HOME</a>
-            <a href="register.php">REGISTER</a>
-            <a href="login.php">LOGIN</a>
-        </nav>
-    </header>
+        <body>
+        <div class="wrapper">
+                <h1>Register</h1>
+            </div>
+            <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
 
-    <div class="wrapper">
-        <h1>Register</h1>
-    </div>
-    <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-
-    <div>
-        <label for="first-name">First Name:</label>
-        <input type="text" id="first-name" name="first-name" value="<?php echo isset($_POST['first-name']) ? htmlspecialchars($_POST['first-name']) : ''; ?>">
-        <span class="error"><?php echo $firstname_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="last-name">Last Name:</label>
-        <input type="text" id="last-name" name="last-name" value="<?php echo isset($_POST['last-name']) ? htmlspecialchars($_POST['last-name']) : ''; ?>">
-        <span class="error"><?php echo $lastname_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="user-name">Username:</label>
-        <input type="text" id="user-name" name="user-name" value="<?php echo isset($_POST['user-name']) ? htmlspecialchars($_POST['user-name']) : ''; ?>">
-        <span class="error"><?php echo $username_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-        <span class="error"><?php echo $email_error; ?></span>
-    </div>
-   
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" value="<?php echo isset($_POST['password']) ? htmlspecialchars($_POST['password']) : ''; ?>">
-        <span class="error"><?php echo $password_error; ?></span>
-    </div>
-    
-    <div>
-        <label for="con-password">Confirm Password:</label>
-        <input type="password" id="con-password" name="con-password" value="<?php echo isset($_POST['con-password']) ? htmlspecialchars($_POST['con-password']) : ''; ?>">
-        <span class="error"><?php echo $confirmPassword_error; ?></span>
-    </div>  
+            <div>
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" name="first-name" value="<?php echo isset($_POST['first-name']) ? htmlspecialchars($_POST['first-name']) : ''; ?>">
+                <span class="error"><?php echo $firstname_error; ?></span>
+            </div>
         
-    <div>
-        <label for="profile-picture">Profile Picture:</label>
-        <input type="file" id="profile-picture" name="profile-picture">
-    </div>
-    <button type="submit" id="sign-in-button" style="background-color:pink; color: black; margin-top: 40px; margin-bottom: 50px; padding: 10px 50px; border-radius: 40px; font-size: 16px; align-items: center; display: block; margin: auto; border: none; outline: none; width: 100%; ">REGISTER</button>
-</form>
+            <div>
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="last-name" value="<?php echo isset($_POST['last-name']) ? htmlspecialchars($_POST['last-name']) : ''; ?>">
+                <span class="error"><?php echo $lastname_error; ?></span>
+            </div>
+        
+            <div>
+                <label for="user-name">Username:</label>
+                <input type="text" id="user-name" name="user-name" value="<?php echo isset($_POST['user-name']) ? htmlspecialchars($_POST['user-name']) : ''; ?>">
+                <span class="error"><?php echo $username_error; ?></span>
+            </div>
+        
+            <div>
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                <span class="error"><?php echo $email_error; ?></span>
+            </div>
+        
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" value="<?php echo isset($_POST['password']) ? htmlspecialchars($_POST['password']) : ''; ?>">
+                <span class="error"><?php echo $password_error; ?></span>
+            </div>
+            
+            <div>
+                <label for="con-password">Confirm Password:</label>
+                <input type="password" id="con-password" name="con-password" value="<?php echo isset($_POST['con-password']) ? htmlspecialchars($_POST['con-password']) : ''; ?>">
+                <span class="error"><?php echo $confirmPassword_error; ?></span>
+            </div>  
+                
+            <div>
+                <label for="profile-picture">Profile Picture:</label>
+                <input type="file" id="profile-picture" name="profile-picture">
+            </div>
+            <button type="submit" id="sign-in-button" style="background-color:pink; color: black; margin-top: 40px; margin-bottom: 50px; padding: 10px 50px; border-radius: 40px; font-size: 16px; align-items: center; display: block; margin: auto; border: none; outline: none; width: 100%; ">REGISTER</button>
+        </form>
 
-</body>
-</html>
+        </body>
+        </html>
 
-
-<style>
+        <style>
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
 
-* {
-    font-family: "Poppins", sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.container {
-    max-width: 1200px; 
-    margin: 0 auto; 
-    padding: 20px; 
-}
-
-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 10px 100px;
-    background: pink;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
-}
-
-.logo{
-    font-size: 2em;
-    color: black;
-    user-select: none;
-}
-
-.navigation a{
-    position: relative;
-    font-size: 1.2em;
-    color: black;
-    text-decoration: none;
-    font-weight: 400;
-    margin-left: 10px;
-}
-
-.navigation a::after{
-    content: '';
-    position: absolute;
-
-}
-
-.navigation login{
-    width: 130px;
-    height: 50px;
-    background: transparent;
-    border: 2px solid white;
-    outline: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    color: white;
-    font-weight: 500;
-    margin-left: 40px;
-    transition: .5s;
-}
-
-.navigation .button_login:hover{
-    background: white;
-    color: black;
-}
-
-#notelt-container {
-    width: 700px;
-    padding: 50px;
-    background-color: white;
-    text-align: center;
-    border: 1px solid #ccc;
-    box-shadow: 20px 20px 15px 10px rgba(0,0,0,0.1);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin-top: 40px;
-}
-#notelt-title {
-    line-height: 50px;
-    margin-top: 5px;
-}
-
-#notelt-title span.do {
-    color: rgb(233, 109, 130); /* Change color of "Do" to pink */
-}
-
-#notelt-title span.note {
-    color: black; /* Change color of "Note" to pink */
-}
-
-  #notelt-logo {
-    width: 150px;
-    height: auto;
-    margin-bottom: 20px;
-  }
-  
-  #notelt-description {
-    font-size: 20px;
-    line-height: 30px;
-    color: black;
-    margin-bottom: 20px;
-  }
 
 .wrapper {
     text-align: center; /* Align content to the center */
@@ -436,3 +324,4 @@ header{
 }
 
 </style>
+
