@@ -15,9 +15,9 @@
         <header>
             <h1 id="notelt-title"><span class="do">Do</span><span class="note">Note!</span></h1>
             <nav class="navigation">
-                <a href="index.php">HOME</a>
-                <a href="register.php">REGISTER</a>
-                <a href="login.php">LOGIN</a>
+                <a href="NotesOnlineApp/index.php">HOME</a>
+                <a href="NotesOnlineApp/register.php">REGISTER</a>
+                <a href="NotesOnlineApp/login.php">LOGIN</a>
             </nav>
         </header>
 
